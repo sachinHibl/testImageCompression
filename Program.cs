@@ -10,12 +10,21 @@
     {
         static void Main()
         {
-            //string sourcePath = "C:\\Users\\HIBL\\Desktop\\New folder\\test.png";  // Replace with your image path
+            string sourcePath = "C:\\Users\\HIBL\\Desktop\\New folder\\test.png";  // Replace with your image path
             //string destinationPath = "C:\\Users\\HIBL\\Desktop\\New folder\\output.png";
             //int quality = 50; // Compression quality (1-100)
 
             //CompressImage(sourcePath, destinationPath, quality);
             //Console.WriteLine("Image compression completed.");
+            int orientation = GetImageOrientation(sourcePath);
+            orientation=6;
+
+            using (Bitmap bmp = new Bitmap(sourcePath))
+            {
+                var bmpR = RotateImage(bmp, orientation);
+                bmpR.Save("C:\\Users\\HIBL\\Desktop\\New folder\\output.png", ImageFormat.Png);
+            }
+
         }
 
         static void CompressImage(string sourcePath, string destinationPath, int quality)
@@ -98,5 +107,31 @@
                 }
             }
         }
+
+        public static int GetImageOrientation(string imagePath)
+        {
+            using (Image img = Image.FromFile(imagePath))
+            {
+                foreach (PropertyItem prop in img.PropertyItems)
+                {
+                    if (prop.Id == 0x0112) // Orientation tag
+                    {
+                        return BitConverter.ToUInt16(prop.Value, 0);
+                    }
+                }
+            }
+            return 1; // Default orientation
+        }
+        public static Bitmap RotateImage(Bitmap img, int orientation)
+        {
+            switch (orientation)
+            {
+                case 3: img.RotateFlip(RotateFlipType.Rotate180FlipNone); break;
+                case 6: img.RotateFlip(RotateFlipType.Rotate90FlipNone); break;
+                case 8: img.RotateFlip(RotateFlipType.Rotate270FlipNone); break;
+            }
+            return img;
+        }
+
     }
 }
